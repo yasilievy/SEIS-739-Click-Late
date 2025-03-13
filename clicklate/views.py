@@ -40,14 +40,3 @@ def click_translate_get_one(request, id, format=None):
     elif request.method == 'DELETE':
         clicklate_one.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
-    
-@api_view(['POST'])
-def registerPage(request, format=None):
-    form = UserCreationForm()
-
-    if request.method == 'POST':
-        form = UserCreationForm(request)
-    
-    context = {'form':form}
-    # return render(request, 'accounts/register.html', context)
-    return Response(status=status.HTTP_204_NO_CONTENT)

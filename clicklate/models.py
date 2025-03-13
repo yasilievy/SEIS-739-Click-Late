@@ -8,7 +8,7 @@ class Clicklate(models.Model):
 
 class Translated(models.Model):
     id = models.IntegerField(primary_key=True)
-    user_id = models.IntegerField()
+    # user_name = models.IntegerField()
     text_boolean = models.BooleanField()
     image_boolean = models.BooleanField()
     date_translated = models.DateField()

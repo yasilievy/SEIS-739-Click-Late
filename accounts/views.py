@@ -1,5 +1,7 @@
 from django.shortcuts import render
 from django.http import HttpResponse
+from django.forms import inlineformset_factory
+from django.contrib.auth.forms import UserCreationForm
 
 def profile(request, format=None):
     # return HttpResponse('Home page')
@@ -10,5 +12,6 @@ def login(request, format=None):
     return render(request, 'accounts/login.html')
 
 def register(request, format=None):
-    # return HttpResponse('Profile page')
-    return render(request, 'accounts/register.html')
+    form = UserCreationForm()
+    context = {'form':form}
+    return render(request, 'accounts/register.html',context)
