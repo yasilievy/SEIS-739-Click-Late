@@ -6,4 +6,4 @@ from .models import Translated
 class TranslatedSerializer(serializers.ModelSerializer):
     class Meta:
         model = Translated
-        fields = ['id','text_boolean','image_boolean','date_translated','detected_language','translate_to_language']
+        fields = ['id']#,'text_boolean','image_boolean','date_translated','detected_language','translate_to_language']

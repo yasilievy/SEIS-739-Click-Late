@@ -24,9 +24,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('',include ('accounts.urls')), # taking urls py from a different app folder
     path('clicklate/', views.click_translate),
-    path('clicklate/<int:id>',views.click_translate_get_one) # need <int:id> to make it an input
-    # path('login/', views.loginPage, name='login'),
-    # path('register/', views.registerPage, name='register')
+    path('clicklate/<int:id>',views.click_translate_get_one), # need <int:id> to make it an input
 
 ]
 
