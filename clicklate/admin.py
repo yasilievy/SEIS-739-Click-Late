@@ -1,7 +1,5 @@
 from django.contrib import admin
-from .models import Clicklate, Translated
+from .models import Translated
 
 # if a new database table is added, you have to register here
-
-admin.site.register(Clicklate)
 admin.site.register(Translated)
