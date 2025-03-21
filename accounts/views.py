@@ -1,14 +1,14 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth import login, authenticate, logout
-from django.contrib.auth.forms import UserCreationForm, AuthenticationForm, PasswordResetForm
+from django.contrib.auth.forms import UserCreationForm, AuthenticationForm, SetPasswordForm
 from django.contrib import messages
 from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import send_mail
 from django.contrib.sites.shortcuts import get_current_site
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.template.loader import render_to_string
-from .forms import CreateUserForm
-
+from .forms import CreateUserForm, EmailUserForm
+from django.contrib.auth.models import User
 
 # Registration View
 def register_view(request):
@@ -49,36 +49,35 @@ def logout_view(request):
     messages.info(request, 'You have successfully logged out.')
     return redirect('login')
 
-def logout_view(request):
-    logout(request)
-    return redirect('login')
-
 # Password Reset Request view
-def password_reset_request(request):
+def password_reset_inquiry(request):
+    hidden_bool = False
     if request.method == 'POST':
-        form = PasswordResetForm(request.POST)
+        form = EmailUserForm(request.POST)
+
         if form.is_valid():
             email = form.cleaned_data['email']
-            # associated_user = User.objects.filter(email=email)
-            # if associated_user.exists():
-            #     user = associated_user[0]
-            #     token = default_token_generator.make_token(user)
-            #     uid = urlsafe_base64_encode(str(user.pk).encode())
-            #     domain = get_current_site(request).domain
-            #     link = f'http://{domain}/password_reset_confirm/{uid}/{token}/'
-
-            #     # Send reset password email
-            #     send_mail(
-            #         'Password Reset Request',
-            #         f'Click the following link to reset your password: {link}',
-            #         'no-reply@mywebsite.com',
-            #         [email],
-            #         fail_silently=False,
-            #     )
-            #     messages.success(request, 'Password reset email sent!')
-            #     return redirect('login')
-            # else:
-            #     messages.error(request, 'Email not found')
+            username = form.cleaned_data['username']
+            associated_email = User.objects.filter(email=email)
+            associated_username = associated_email.filter(username=username)
+            messages.success(request, f'Welcome back, {email}!')
+            if associated_email.exists() and associated_username.exists():
+                current_user = associated_email[0]
+                return redirect('password_reset_verified')
+            else:
+                messages.error(request, 'Email not found')
     else:
-        form = PasswordResetForm()
-    return render(request, 'accounts/password_reset.html', {'form': form})
+        form = EmailUserForm()
+    return render(request, 'accounts/password_reset_inquiry.html', {'form': form,'bool':hidden_bool})
+
+def password_reset_verified(request):
+    if request.method == 'POST':
+        form = SetPasswordForm(current_user)
+        return redirect('login')
+
+        # if form.is_valid():
+        #     form.save()
+        #     return redirect('login')
+    else:
+        form = SetPasswordForm(current_user)
+    return render(request, 'accounts/password_reset_verified.html', {'form': form})
