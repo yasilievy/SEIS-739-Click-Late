@@ -1,13 +1,11 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth import login, authenticate, logout
-from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib import messages
 from .forms import CreateUserForm
-from django.contrib.auth.forms import AuthenticationForm
 
 
-
-# Register View
+# Registration View
 def register_view(request):
     if request.method == 'POST':
         form = CreateUserForm(request.POST)
@@ -31,7 +29,7 @@ def login_view(request):
             if user is not None:
                 login(request, user)
                 messages.success(request, f'Welcome back, {username}!')
-                return redirect('home')  # Redirect to a 'home' page or dashboard
+                return redirect('home')  # Redirect to the home page
             else:
                 messages.error(request, 'Invalid username or password')
         else:
