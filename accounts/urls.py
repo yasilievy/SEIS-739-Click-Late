@@ -14,19 +14,11 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
-from django.contrib import admin
 from django.urls import path
-from accounts import views
-from rest_framework.urlpatterns import format_suffix_patterns
-
+from . import views
 
 urlpatterns = [
-    # path('',views.home),
-    path('profile/',views.profile),
-    path('login/',views.login),
-    path('register/',views.register)
-    
+    path('login/', views.login_view, name='login'),
+    path('register/', views.register_view, name='register'),
+    path('logout/', views.logout_view, name='logout'),
 ]
-
-
-url_patterns = format_suffix_patterns(urlpatterns) # getting JSON through browser

@@ -7,4 +7,4 @@ from .models import UserProfile
 class CreateUserForm(ModelForm):
     class Meta:
         model = UserProfile
-        fields = ['firstname','lastname','username','email','password']
+        fields = ['username','password','firstname','lastname','email']

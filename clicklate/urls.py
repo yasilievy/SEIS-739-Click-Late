@@ -21,10 +21,9 @@ from rest_framework.urlpatterns import format_suffix_patterns
 
 
 urlpatterns = [
+    path('', views.home, name='home'),
     path('admin/', admin.site.urls),
     path('',include ('accounts.urls')), # taking urls py from a different app folder
-    path('clicklate/', views.click_translate),
-    path('clicklate/<int:id>',views.click_translate_get_one), # need <int:id> to make it an input
 
 ]
 
