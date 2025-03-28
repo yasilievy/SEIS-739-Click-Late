@@ -58,26 +58,24 @@ def password_reset_inquiry(request):
         if form.is_valid():
             email = form.cleaned_data['email']
             username = form.cleaned_data['username']
+            password = form.cleaned_data['password']
             associated_email = User.objects.filter(email=email)
-            associated_username = associated_email.filter(username=username)
-            messages.success(request, f'Welcome back, {email}!')
-            if associated_email.exists() and associated_username.exists():
-                current_user = associated_email[0]
-                return redirect('password_reset_verified')
+            associated_user = associated_email[0]
+            if associated_user.username == username and associated_user.check_password(password):
+                return redirect('password_reset_verified',username=username)
             else:
                 messages.error(request, 'Email not found')
     else:
         form = EmailUserForm()
     return render(request, 'accounts/password_reset_inquiry.html', {'form': form,'bool':hidden_bool})
 
-def password_reset_verified(request):
+def password_reset_verified(request, username):
+    user = User.objects.filter(username=username)[0]
     if request.method == 'POST':
-        form = SetPasswordForm(current_user)
-        return redirect('login')
-
-        # if form.is_valid():
-        #     form.save()
-        #     return redirect('login')
+        form = SetPasswordForm(user,data=request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('login')
     else:
-        form = SetPasswordForm(current_user)
+        form = SetPasswordForm(user)
     return render(request, 'accounts/password_reset_verified.html', {'form': form})
