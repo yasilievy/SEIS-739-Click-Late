@@ -1,9 +1,14 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth import login, authenticate, logout
-from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
+from django.contrib.auth.forms import UserCreationForm, AuthenticationForm, SetPasswordForm
 from django.contrib import messages
-from .forms import CreateUserForm
-
+from django.contrib.auth.tokens import default_token_generator
+from django.core.mail import send_mail
+from django.contrib.sites.shortcuts import get_current_site
+from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
+from django.template.loader import render_to_string
+from .forms import CreateUserForm, EmailUserForm
+from django.contrib.auth.models import User
 
 # Registration View
 def register_view(request):
@@ -43,3 +48,34 @@ def logout_view(request):
     logout(request)
     messages.info(request, 'You have successfully logged out.')
     return redirect('login')
+
+# Password Reset Request view
+def password_reset_inquiry(request):
+    hidden_bool = False
+    if request.method == 'POST':
+        form = EmailUserForm(request.POST)
+
+        if form.is_valid():
+            email = form.cleaned_data['email']
+            username = form.cleaned_data['username']
+            password = form.cleaned_data['password']
+            associated_email = User.objects.filter(email=email)
+            associated_user = associated_email[0]
+            if associated_user.username == username and associated_user.check_password(password):
+                return redirect('password_reset_verified',username=username)
+            else:
+                messages.error(request, 'Email not found')
+    else:
+        form = EmailUserForm()
+    return render(request, 'accounts/password_reset_inquiry.html', {'form': form,'bool':hidden_bool})
+
+def password_reset_verified(request, username):
+    user = User.objects.filter(username=username)[0]
+    if request.method == 'POST':
+        form = SetPasswordForm(user,data=request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('login')
+    else:
+        form = SetPasswordForm(user)
+    return render(request, 'accounts/password_reset_verified.html', {'form': form})
