@@ -7,8 +7,38 @@ from django.core.mail import send_mail
 from django.contrib.sites.shortcuts import get_current_site
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.template.loader import render_to_string
-from .forms import CreateUserForm, EmailUserForm
+from .forms import CreateUserForm, EmailUserForm, EmailUpdateForm
 from django.contrib.auth.models import User
+
+def emailupdate_view(request):
+    if request.method == 'POST':
+        form = EmailUpdateForm(request.POST)
+        if form.is_valid():
+            username = form.cleaned_data.get('username')
+            password = form.cleaned_data.get('password1')
+            new_email = form.cleaned_data.get('new_email')
+            old_email = form.cleaned_data.get('old_email')
+            user = authenticate(request, username=username, password=password)
+            if user is not None:
+                user.email = new_email
+                user.save()
+                print(user.email)
+                messages.success(request, f'successfully updated email to {new_email}!')
+                return redirect('profile')
+            else:
+                print('incorrect login authentication')
+
+    else:
+        form = EmailUpdateForm(request.POST)
+    return render(request,'accounts/email_update.html',{'form':form})
+
+
+
+
+def profile_view(request):
+    if request.user.is_authenticated:
+        return render(request,'accounts/profile.html',{'user':request.user})
+    return redirect('login')
 
 # Registration View
 def register_view(request):
@@ -34,7 +64,7 @@ def login_view(request):
             if user is not None:
                 login(request, user)
                 messages.success(request, f'Welcome back, {username}!')
-                return redirect('home-user',username=user.username)  # Redirect to the home page
+                return redirect('home-user')  # Redirect to the home page
             else:
                 messages.error(request, 'Invalid username or password')
         else:
