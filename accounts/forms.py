@@ -12,12 +12,17 @@ class CreateUserForm(UserCreationForm):
         fields = ['username','email','password1','password2']
 
 
-class EmailUserForm(PasswordResetForm):
+class ForgotPasswordForm(forms.Form):
+    email = forms.EmailField(
+        label= ("Email"),
+        max_length=254,
+        widget=forms.EmailInput(attrs={"autocomplete": "email"}),
+    )
     username = forms.CharField(widget=forms.TextInput(attrs={"autofocus": True}))
-    password = SetPasswordMixin.create_password_fields()[0]
+    # password1, password2 = SetPasswordMixin.create_password_fields()
     class Meta:
         model = User
-        fields = ['username','email','password']
+        fields = ['username','email']
 
 class EmailUpdateForm(forms.Form):
     old_email = forms.EmailField(
