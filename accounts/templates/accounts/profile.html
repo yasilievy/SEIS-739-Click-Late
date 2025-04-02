@@ -84,7 +84,7 @@
     <div class="container">
         <!-- Profile Header Section -->
         <div class="profile-header">
-            <h1>{{user.first_name}} {{user.last_name}} Doe</h1>
+            <h1>{{user.first_name}} {{user.last_name}}</h1>
             <p>Welcome to your profile page</p>
         </div>
 
@@ -102,9 +102,11 @@
         </div>
 
         <!-- Logout Button -->
-        <a href="{% url 'emailupdate' %}" class="logout-button">Update Email</a>
-        <a href="{% url 'emailupdate' %}" class="logout-button">Update Password</a>
-        <a href="{% url 'home' %}" class="logout-button">Back</a>
+        <!-- <a href="{% url 'emailupdate' %}" class="logout-button">Update Email</a> -->
+        <a href="{% url 'profile_edit' %}" class="logout-button">Update Profile</a>
+
+        <a href="{% url 'password_reset_inquiry' %}" class="logout-button">Update Password</a>
+        <a href="{% url 'home-user' %}" class="logout-button">Back</a>
         
         <a href="{% url 'logout' %}" class="logout-button">Logout</a>
        
