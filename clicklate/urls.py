@@ -22,6 +22,7 @@ from rest_framework.urlpatterns import format_suffix_patterns
 
 urlpatterns = [
     path('', views.home, name='home'),
+    path('home', views.home_user, name='home-user'),
     path('admin/', admin.site.urls),
     path('',include ('accounts.urls')), # taking urls py from a different app folder
 

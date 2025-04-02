@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Profile</title>
+    <title>EmailUpdate</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -82,28 +82,16 @@
 <body>
 
     <div class="container">
-        <!-- Profile Header Section -->
-        <div class="profile-header">
-            <h1>{{user.first_name}} {{user.last_name}} Doe</h1>
-            <p>Welcome to your profile page</p>
-        </div>
-
-        <!-- Profile Information Section -->
-        <div class="profile-info">
-            <div>
-                <p><label for="username">Username:</label> <span>{{user.username}}</span></p>
-                <p><label for="email">Email:</label> <span>{{user.email}}</span></p>
-                <p><label for="dob">Date of Birth:</label> <span>January 1, 1990</span></p>
-            </div>
-            <div>
-                <p><label for="location">Location:</label> <span>New York, USA</span></p>
-                <p><label for="bio">Bio:</label> <span>A passionate web developer.</span></p>
-            </div>
-        </div>
-
-        <!-- Logout Button -->
-        <a href="{% url 'emailupdate' %}" class="logout-button">Update Email</a>
-        <a href="{% url 'logout' %}" class="logout-button">Logout</a>
+        <form method="POST">
+            {% csrf_token %}
+            {% for field in form %}
+            {{ field.label }}:
+            {{ field }}
+            <br>
+            {% endfor %}
+            <button type="submit">Confirm</button>
+        </form>
+        <a href="{% url 'profile' %}" class="logout-button">Cancel</a>
        
     </div>
 
