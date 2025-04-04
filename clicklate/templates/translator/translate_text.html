@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Text Translation</title>
+</head>
+<body>
+    <h1>Text Translation</h1>
+    <form method="POST">
+        {% csrf_token %}
+        <textarea name="text" placeholder="Enter text to translate" required></textarea><br>
+        <label for="target_language">Target Language (default is English): </label>
+        <input type="text" name="target_language" placeholder="e.g., en" /><br>
+        <button type="submit">Translate</button>
+    </form>
+    <textarea name="text">{% if original_text %}{{ translated_text }}{% endif %}
+    </textarea><br>
+
+
+</body>
+</html>
