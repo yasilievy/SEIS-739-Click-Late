@@ -10,11 +10,10 @@ from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from googletrans import Translator
 from django.core.files.storage import FileSystemStorage
-from django.views.generic import FormView, View,TemplateView
-import detectlanguage
+# import detectlanguage
 # from . import detectlanguage_config
 
-detectlanguage.configuration.api_key = "6dd8715b0219b1a87976ddfced65fe59"
+# detectlanguage.configuration.api_key = "6dd8715b0219b1a87976ddfced65fe59"
 translator = Translator()
 
 def home(request):
@@ -31,22 +30,18 @@ def translate_text(request):
     """Handle translation of a word or phrase."""
     if request.method == 'POST':
         text_to_translate = request.POST.get('text')
+        print(text_to_translate)
         target_language = request.POST.get('target_language', 'en')
-        print(type(target_language))
         if len(target_language) ==0 :
             target_language = 'en'
-        
-        detection = detectlanguage.detect(text_to_translate)
-        if detection:
-            language_detected = detection[0]['language']
-        else:
-            language_detected = 'N/A'
-        translation = translator.translate(text_to_translate, dest=target_language)
 
+        translation = translator.translate(text_to_translate, dest=target_language)
+        print(translation)
+        print(translation.extra_data)
 
         return render(request, 'translator/translate_text.html',{'original_text': text_to_translate,
                                                                  'translated_text': translation.text,
-                                                                 'language_detected': language_detected,
+                                                                 'language_detected': translation.src,
                                                                  'target_language':target_language})
         # return JsonResponse({
         #     'original_text': text_to_translate,
