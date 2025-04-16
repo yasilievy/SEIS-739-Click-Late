@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Image Translation</title>
+</head>
+<body>
+    <h1>Image Translation</h1>
+    <form method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        <input type="file" name="image" required /><br>
+        <button type="submit">Translate Image</button>
+    </form>
+    {% if original_text %}
+        <h2>Original Text in Image:</h2>
+        <p>{{ original_text }}</p>
+        <h2>Translated Text:</h2>
+        <p>{{ translated_text }}</p>
+        <h3>Image URL:</h3>
+        <img src="{{ image_url }}" alt="Uploaded Image" />
+    {% endif %}
+</body>
+</html>

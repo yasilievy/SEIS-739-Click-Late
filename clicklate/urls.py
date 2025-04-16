@@ -18,6 +18,8 @@ from django.contrib import admin
 from django.urls import path, include
 from clicklate import views
 from rest_framework.urlpatterns import format_suffix_patterns
+from django.conf import settings
+from django.conf.urls.static import static
 
 
 urlpatterns = [
@@ -25,8 +27,12 @@ urlpatterns = [
     path('home', views.home_user, name='home-user'),
     path('admin/', admin.site.urls),
     path('',include ('accounts.urls')), # taking urls py from a different app folder
+    path('translate-text/', views.translate_text, name='translate_text'),
+    # path('translate-text/', translate_text_view.as_view(), name='translate_text'),
 
-]
+    path('translate-image/', views.translate_image, name='translate_image'),
+
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 
 url_patterns = format_suffix_patterns(urlpatterns) # getting JSON through browser
