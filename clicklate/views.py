@@ -11,6 +11,11 @@ from django.contrib.auth.decorators import login_required
 from googletrans import Translator
 from django.core.files.storage import FileSystemStorage
 from django.views.generic import FormView, View,TemplateView
+import detectlanguage
+# from . import detectlanguage_config
+
+detectlanguage.configuration.api_key = "6dd8715b0219b1a87976ddfced65fe59"
+translator = Translator()
 
 def home(request):
     return render(request, 'home.html')
@@ -19,23 +24,6 @@ def home_user(request):
     if request.user.is_authenticated:
         return render(request, 'home-user.html',{'user':request.user})
     return redirect('home')
-translator = Translator()
-
-class translate_text_view(View):
-    original_text = ''
-    translated = ''
-    def post(self, request):
-        self.original_text = request.POST.get('text')
-        target_language = request.POST.get('target_language', 'en')
-        if len(target_language)==0:
-            target_language = 'en'
-        print(target_language)
-        translation = translator.translate(self.original_text, dest=target_language)
-        self.translated = translation.text
-        return render(request, 'translator/translate_text.html',{'original_text': self.original_text,'translated_text': self.translated})
-    def get(self,request):
-        return render(request, 'translator/translate_text.html',{'original_text': self.original_text,'translated_text': self.translated})
-
 
 
 def translate_text(request):
@@ -44,12 +32,22 @@ def translate_text(request):
     if request.method == 'POST':
         text_to_translate = request.POST.get('text')
         target_language = request.POST.get('target_language', 'en')
-
-        # Translate text
+        print(type(target_language))
+        if len(target_language) ==0 :
+            target_language = 'en'
+        
+        detection = detectlanguage.detect(text_to_translate)
+        if detection:
+            language_detected = detection[0]['language']
+        else:
+            language_detected = 'N/A'
         translation = translator.translate(text_to_translate, dest=target_language)
 
 
-        return render(request, 'translator/translate_text.html',{'original_text': text_to_translate,'translated_text': translation.text})
+        return render(request, 'translator/translate_text.html',{'original_text': text_to_translate,
+                                                                 'translated_text': translation.text,
+                                                                 'language_detected': language_detected,
+                                                                 'target_language':target_language})
         # return JsonResponse({
         #     'original_text': text_to_translate,
         #     'translated_text': translation.text,

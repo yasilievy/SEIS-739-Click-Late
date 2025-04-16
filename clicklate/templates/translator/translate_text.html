@@ -7,14 +7,19 @@
     <h1>Text Translation</h1>
     <form method="POST">
         {% csrf_token %}
-        <textarea name="text" placeholder="Enter text to translate" required></textarea><br>
-        <label for="target_language">Target Language (default is English): </label>
-        <input type="text" name="target_language" placeholder="e.g., en" /><br>
+   
+        <p name="language_detected">Language detected is: {% if language_detected %} {{ language_detected }} {% endif %}</p>
+        <textarea name="text" id="text-input" placeholder="Enter text to translate" required>{% if original_text %}{{ original_text }}{% endif %}</textarea><br>
+   
+        <br>
+        <label for="target_language"> Target Language (default is English): </label>
+        <br><br>
+        <input type="text" name="target_language" placeholder="e.g., br (brazillian)" value="{% if target_language %}{{ target_language }}{% endif %}" />
+        <br><br>
         <button type="submit">Translate</button>
     </form>
-    <textarea name="text">{% if original_text %}{{ translated_text }}{% endif %}
-    </textarea><br>
-
-
+    <br><br>
+    <textarea name="text">{% if original_text %}{{ translated_text }}{% endif %}</textarea>
+    <br><br>
 </body>
 </html>
