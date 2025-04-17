@@ -9,7 +9,11 @@ class Translated(models.Model):
     # detected_language = models.CharField(max_length=40)
     # translate_to_language = models.CharField(max_length=40)
 
-    def __str__(self):
-        return ''
-
+class TranslateHistory(models.Model):
+    id = models.IntegerField(primary_key=True)
+    username = models.CharField(max_length=40)
+    email = models.CharField(max_length=40)
+    text_boolean = models.BooleanField(default=False)
+    image_boolean = models.BooleanField(default=False)
+    detected_language = models.CharField(max_length=2)
 

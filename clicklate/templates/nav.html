@@ -12,7 +12,7 @@
     <h1>ClickLate</h1>
     <ul class="nav nav-pills nav-justified">
         <li class="active"><a href="#">Home</a></li>
-        <li><a href="#">History</a></li>
+        <li><a href="{% url 'translate_history' %}">History</a></li>
         <li><a href="{% url 'profile' %}">Profile</a></li>
     </ul>
     {% block content %}

@@ -1,6 +1,6 @@
 from django.http import JsonResponse
-from .models import Translated
-from .serializers import TranslatedSerializer
+from .models import TranslateHistory
+from .serializers import TranslatedSerializer, TranslatedHistorySerializer
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
@@ -79,3 +79,33 @@ def translate_image(request):
         })
 
     return render(request, 'translator/translate_image.html')
+
+# @api_view(['POST','GET','PUT','DELETE'])
+def translate_history(request):
+    username = ''
+    if request.user.is_authenticated:
+        username= request.user.username
+        print(username)
+    # history = TranslateHistory.objects.all()
+    history = TranslateHistory.objects.filter(username=username)
+    serializer = TranslatedHistorySerializer(history, many=True)
+    # return JsonResponse(serializer.data, safe=False)
+    return render(request, 'translator/translate_history.html',{'translated_history': serializer.data})
+    # if request.method == 'GET':
+    #     history = TranslateHistory.objects.get(id=pk)
+    #     # history = TranslateHistory.objects.filter(username=username)
+    #     # print(history)
+    #     serializer = TranslatedHistorySerializer(history)
+    #     return Response(serializer.data)
+    # if request.method == 'DELETE':
+    #     pass
+    # if request.method == 'PUT':
+    #     pass
+        # serializer = 
+        # user_object = User.objects.get(username=username)
+        
+        # user_email = user_object.email
+        # return 
+        # username = request.PUT.username
+        # user = User.objects.get(username=username)
+        # serializer = TranslatedSerializer
