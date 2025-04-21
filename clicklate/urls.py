@@ -24,11 +24,13 @@ from django.conf.urls.static import static
 
 urlpatterns = [
     path('', views.home, name='home'),
-    path('home', views.home_user, name='home-user'),
+    path('home/', views.home_user, name='home-user'),
     path('admin/', admin.site.urls),
     path('',include ('accounts.urls')), # taking urls py from a different app folder
     path('translate-text/', views.translate_text, name='translate_text'),
-    # path('translate-text/', translate_text_view.as_view(), name='translate_text'),
+    # path('translatehistory/<username>', views.translate_history, name='translate_history'),
+    path('translatehistory/', views.translate_history, name='translate_history'),
+    path('translatehandle/', views.translate_handle),
 
     path('translate-image/', views.translate_image, name='translate_image'),
 

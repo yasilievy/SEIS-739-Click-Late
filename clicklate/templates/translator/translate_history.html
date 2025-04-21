@@ -6,8 +6,11 @@
 </head>
 <body>
     {% block content %}
-    <p>This is the home page
-    </p>
+    {% for history in translated_history %}
+    {{ history }}
+    <br>
+    {% endfor %}
     {% endblock %}
 </body>
 </html>
+
