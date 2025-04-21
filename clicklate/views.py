@@ -43,7 +43,7 @@ def translate_text(request):
             'username': request.user.username,
             'email': request.user.email,
             'text_boolean': True,
-            'detected_language': target_language
+            'detected_language': translation.src
         }
         # url = 'http://127.0.0.1:8000/translatehandle/'
         serializer = TranslatedHistorySerializer(data=data)
