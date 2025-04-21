@@ -10,8 +10,8 @@ from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from googletrans import Translator
 from django.core.files.storage import FileSystemStorage
-from django.utils import timezone
-from datetime import datetime
+from PIL import Image
+import pytesseract 
 
 # import detectlanguage
 # from . import detectlanguage_config
