@@ -10,6 +10,9 @@ from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from googletrans import Translator
 from django.core.files.storage import FileSystemStorage
+from django.utils import timezone
+from datetime import datetime
+
 # import detectlanguage
 # from . import detectlanguage_config
 
@@ -41,13 +44,16 @@ def translate_text(request):
         data = {
             'id': 0,
             'username': request.user.username,
+            # 'date': datetime.now(),
             'email': request.user.email,
             'text_boolean': True,
-            'detected_language': translation.src
+            'text_to_translate': text_to_translate,
+            'detected_language': translation.src,
+            'translated_results': translation.text
         }
-        # url = 'http://127.0.0.1:8000/translatehandle/'
         serializer = TranslatedHistorySerializer(data=data)
         if serializer.is_valid():
+            print('serializer was valid')
             
             existing_size = len(TranslateHistory.objects.all())
             serializer.validated_data['id'] = existing_size + 1
@@ -56,20 +62,10 @@ def translate_text(request):
                                                                  'translated_text': translation.text,
                                                                  'language_detected': translation.src,
                                                                  'target_language':target_language})
-        # new_request = HttpRequest()
-        # new_request.POST = data
-        # print('created request')
-        # print(request)
-        # translate_handle(request)
-        # translate_handle(JsonResponse({
-        #     'id': 0,
-        #     'username': 't1',
-        #     'email': '2@email.com',
-        #     'text_boolean': True,
-        #     'detected_language': target_language
-        # }))
-        if request.method == 'GET':
-            return render(request, 'translator/translate_text.html')
+        else:
+            print('serializer was not valid')
+    if request.method == 'GET':
+        return render(request, 'translator/translate_text.html')
             
 
         

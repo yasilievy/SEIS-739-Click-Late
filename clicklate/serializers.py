@@ -11,4 +11,14 @@ class TranslatedSerializer(serializers.ModelSerializer):
 class TranslatedHistorySerializer(serializers.ModelSerializer):
     class Meta:
         model = TranslateHistory
-        fields = ['id','username','email','text_boolean','image_boolean','detected_language'] #,'translate_to_language']
+        fields = ['id',
+                  'username',
+                  'date',
+                  'email',
+                  'text_boolean',
+                  'image_boolean',
+                  'image_to_translate',
+                  'text_to_translate',
+                  'detected_language',
+                  'translated_results'
+                  ]
