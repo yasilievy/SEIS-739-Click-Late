@@ -1,10 +1,15 @@
+{% extends 'nav.html' %}
 <!DOCTYPE html>
 <html>
 <head>
     <title>Text Translation</title>
 </head>
 <body>
-    <h1>Text Translation</h1>
+    {% block content %}
+    <ul class="nav nav-pills nav-justified">
+        <li><a href="{% url 'translate_text' %}">Text</a></li>
+        <li><a href="{% url 'translate_image' %}">Image</a></li>
+    </ul>
     <form method="POST">
         {% csrf_token %}
    
@@ -21,5 +26,6 @@
     <br><br>
     <textarea name="text">{% if original_text %}{{ translated_text }}{% endif %}</textarea>
     <br><br>
+    {% endblock %}
 </body>
 </html>

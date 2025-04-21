@@ -1,4 +1,16 @@
-{% for history in translated_history %}
-{{ history }}
-<br>
-{% endfor %}
+{% extends 'nav.html' %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Home-user</title>
+</head>
+<body>
+    {% block content %}
+    {% for history in translated_history %}
+    {{ history }}
+    <br>
+    {% endfor %}
+    {% endblock %}
+</body>
+</html>
+
