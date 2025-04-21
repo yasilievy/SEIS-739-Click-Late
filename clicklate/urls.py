@@ -30,6 +30,7 @@ urlpatterns = [
     path('translate-text/', views.translate_text, name='translate_text'),
     # path('translatehistory/<username>', views.translate_history, name='translate_history'),
     path('translatehistory/', views.translate_history, name='translate_history'),
+    path('translatehandle/', views.translate_handle),
 
     path('translate-image/', views.translate_image, name='translate_image'),
 

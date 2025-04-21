@@ -1,9 +1,9 @@
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpRequest
 from .models import TranslateHistory
 from .serializers import TranslatedSerializer, TranslatedHistorySerializer
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
-from rest_framework import status
+from rest_framework import status, request
 from django.shortcuts import render, redirect
 from django.contrib.auth.models import User
 from django.conf import settings
@@ -24,7 +24,7 @@ def home_user(request):
         return render(request, 'home-user.html',{'user':request.user})
     return redirect('home')
 
-
+@api_view(['POST','GET'])
 def translate_text(request):
     translation = ''
     """Handle translation of a word or phrase."""
@@ -34,22 +34,75 @@ def translate_text(request):
         target_language = request.POST.get('target_language', 'en')
         if len(target_language) ==0 :
             target_language = 'en'
-
         translation = translator.translate(text_to_translate, dest=target_language)
-        print(translation)
-        print(translation.extra_data)
+        # print(translation)
+        # print(translation.extra_data)
 
-        return render(request, 'translator/translate_text.html',{'original_text': text_to_translate,
+        data = {
+            'id': 0,
+            'username': request.user.username,
+            'email': request.user.email,
+            'text_boolean': True,
+            'detected_language': target_language
+        }
+        # url = 'http://127.0.0.1:8000/translatehandle/'
+        serializer = TranslatedHistorySerializer(data=data)
+        if serializer.is_valid():
+            
+            existing_size = len(TranslateHistory.objects.all())
+            serializer.validated_data['id'] = existing_size + 1
+            serializer.save()
+            return render(request, 'translator/translate_text.html',{'original_text': text_to_translate,
                                                                  'translated_text': translation.text,
                                                                  'language_detected': translation.src,
                                                                  'target_language':target_language})
-        # return JsonResponse({
-        #     'original_text': text_to_translate,
-        #     'translated_text': translation.text,
-        #     'source_language': translation.src,
-        #     'target_language': target_language
-        # })
+        # new_request = HttpRequest()
+        # new_request.POST = data
+        # print('created request')
+        # print(request)
+        # translate_handle(request)
+        # translate_handle(JsonResponse({
+        #     'id': 0,
+        #     'username': 't1',
+        #     'email': '2@email.com',
+        #     'text_boolean': True,
+        #     'detected_language': target_language
+        # }))
+        if request.method == 'GET':
+            return render(request, 'translator/translate_text.html')
+            
+
+        
+ 
     return render(request, 'translator/translate_text.html')
+
+
+@api_view(['POST'])
+def translate_handle(request):
+
+    if request.method == 'POST':
+        print('handled request')
+
+        print(request)
+        print(type(request))
+        print(request.data)
+        serializer = TranslatedHistorySerializer(data=request.data)
+
+        if serializer.is_valid():
+            
+            existing_size = len(TranslateHistory.objects.all())
+            serializer.validated_data['id'] = existing_size + 1
+            # serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+    # if request.method == 'GET':
+    #     history = TranslateHistory.objects.get(id=pk)
+    #     serializer = TranslatedHistorySerializer(history)
+    #     return Response(serializer.data)
+    # if request.method == 'DELETE':
+    #     pass
+    # if request.method == 'PUT':
+    #     pass
 
 
 def translate_image(request):
@@ -80,7 +133,7 @@ def translate_image(request):
 
     return render(request, 'translator/translate_image.html')
 
-# @api_view(['POST','GET','PUT','DELETE'])
+
 def translate_history(request):
     username = ''
     if request.user.is_authenticated:
@@ -91,21 +144,3 @@ def translate_history(request):
     serializer = TranslatedHistorySerializer(history, many=True)
     # return JsonResponse(serializer.data, safe=False)
     return render(request, 'translator/translate_history.html',{'translated_history': serializer.data})
-    # if request.method == 'GET':
-    #     history = TranslateHistory.objects.get(id=pk)
-    #     # history = TranslateHistory.objects.filter(username=username)
-    #     # print(history)
-    #     serializer = TranslatedHistorySerializer(history)
-    #     return Response(serializer.data)
-    # if request.method == 'DELETE':
-    #     pass
-    # if request.method == 'PUT':
-    #     pass
-        # serializer = 
-        # user_object = User.objects.get(username=username)
-        
-        # user_email = user_object.email
-        # return 
-        # username = request.PUT.username
-        # user = User.objects.get(username=username)
-        # serializer = TranslatedSerializer
