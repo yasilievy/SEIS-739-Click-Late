@@ -8,16 +8,18 @@ from django.shortcuts import render, redirect
 from django.contrib.auth.models import User
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
-from googletrans import Translator
+from googletrans import Translator, LANGUAGES
 from django.core.files.storage import FileSystemStorage
 from django.utils import timezone
 from datetime import datetime
-
+from PIL import Image
+import pytesseract
 # import detectlanguage
 # from . import detectlanguage_config
 
 # detectlanguage.configuration.api_key = "6dd8715b0219b1a87976ddfced65fe59"
 translator = Translator()
+
 
 def home(request):
     return render(request, 'home.html')
@@ -29,18 +31,13 @@ def home_user(request):
 
 @api_view(['POST','GET'])
 def translate_text(request):
-    translation = ''
     """Handle translation of a word or phrase."""
     if request.method == 'POST':
         text_to_translate = request.POST.get('text')
-        print(text_to_translate)
         target_language = request.POST.get('target_language', 'en')
         if len(target_language) ==0 :
             target_language = 'en'
         translation = translator.translate(text_to_translate, dest=target_language)
-        # print(translation)
-        # print(translation.extra_data)
-
         data = {
             'id': 0,
             'username': request.user.username,
@@ -48,7 +45,7 @@ def translate_text(request):
             'email': request.user.email,
             'text_boolean': True,
             'text_to_translate': text_to_translate,
-            'detected_language': translation.src,
+            'detected_language': LANGUAGES[translation.src],
             'translated_results': translation.text
         }
         serializer = TranslatedHistorySerializer(data=data)
@@ -60,16 +57,12 @@ def translate_text(request):
             serializer.save()
             return render(request, 'translator/translate_text.html',{'original_text': text_to_translate,
                                                                  'translated_text': translation.text,
-                                                                 'language_detected': translation.src,
+                                                                 'language_detected': LANGUAGES[translation.src],
                                                                  'target_language':target_language})
         else:
             print('serializer was not valid')
     if request.method == 'GET':
         return render(request, 'translator/translate_text.html')
-            
-
-        
- 
     return render(request, 'translator/translate_text.html')
 
 
@@ -78,10 +71,6 @@ def translate_handle(request):
 
     if request.method == 'POST':
         print('handled request')
-
-        print(request)
-        print(type(request))
-        print(request.data)
         serializer = TranslatedHistorySerializer(data=request.data)
 
         if serializer.is_valid():
@@ -134,8 +123,6 @@ def translate_history(request):
     username = ''
     if request.user.is_authenticated:
         username= request.user.username
-        print(username)
-    # history = TranslateHistory.objects.all()
     history = TranslateHistory.objects.filter(username=username)
     serializer = TranslatedHistorySerializer(history, many=True)
     # return JsonResponse(serializer.data, safe=False)
