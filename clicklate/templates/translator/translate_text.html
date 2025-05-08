@@ -29,8 +29,12 @@
                     <p><label>{{ error_message}}</label></p>
                     {% endif %}
                     <select name="language_dropdown">
-                        {% for pt_language in tess_languages %}
-                        <option>{{pt_language}}</option>
+                        {% for gt_language in gt_languages %}
+                        {% if gt_language == "en || english" or previous_detect_lang == gt_language %}
+                        <option selected>{{gt_language}}</option>
+                        {% else %}
+                        <option>{{gt_language}}</option>
+                        {% endif %}
                         {% endfor %}
                     </select> 
                 </th>
@@ -40,11 +44,11 @@
                 <th>
                     <select name="target_language">
                         {% for gt_language in gt_languages %}
-                        {% if gt_language == "en || english" %}
+                        {% if gt_language == "en || english" or previous_target_lang == gt_language %}
                         <option selected>{{gt_language}}</option>
                         {% else %}
-                        {% endif %}
                         <option>{{gt_language}}</option>
+                        {% endif %}
                         {% endfor %}
                     </select> 
                 </th>
@@ -52,7 +56,7 @@
                     <button type="submit">Translate</button>
                 </th>
                 <th>
-                    <textarea name="text">{{ translated_text }}</textarea>
+                    <textarea name="results-text">{{ translated_text }}</textarea>
                 </th>
                 </tr>
             </tbody>

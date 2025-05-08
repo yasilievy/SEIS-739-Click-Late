@@ -16,6 +16,7 @@ translator = Translator()
 pytesseract.pytesseract.tesseract_cmd = 'Tesseract-OCR\\tesseract.exe'
 concat_tess_languages = [f'{key} || {value}' for key,value in settings.PYTESS_LANGUAGE.items()]
 concat_gt_languages = [f'{key} || {value}' for key,value in LANGUAGES.items()]
+concat_gt_languages.insert(0,' || ')
 
 def home(request):
     return render(request, 'home.html')
@@ -33,16 +34,22 @@ def translate_text(request):
 
         text_to_translate = request.POST.get('text')
 
-        # target_language = request.POST.get('target_language')
+        previous_language_to_detect =request.POST.get('language_dropdown') 
+        language_init_detect = previous_language_to_detect.split(' || ')
+        if len(language_init_detect)==1:
+            language_detect_acr = ''
+            language_detect = ''
+        else:
+            language_detect_acr, language_detect = language_init_detect
 
-        # language_detect = request.POST.get('detect_language')
-
-        language_detect_acr, language_detect = request.POST.get('language_dropdown').split(' || ')
-
-        target_language_acr, target_language = request.POST.get('target_language').split(' || ')
-
+        previous_target_language = request.POST.get('target_language')
+        target_language_acr, target_language = previous_target_language.split(' || ')
         try:
-            translation = translator.translate(text_to_translate, dest=target_language, src=language_detect_acr)
+            if len(language_detect_acr) == 0:
+                translation = translator.translate(text_to_translate, dest=target_language_acr)
+                language_detect = LANGUAGES[translation.src]   
+            else:
+                translation = translator.translate(text_to_translate, dest=target_language_acr, src=language_detect_acr)
             data = {
                     'user_id': request.user.id,
                     'text_boolean': True,
@@ -52,19 +59,23 @@ def translate_text(request):
                     'translated_results': translation.text
                 }
             serializer = TranslatedHistorySerializer(data=data)
-        except:
+        except Exception as e:
+            print(e)
             translation_boolean = False
 
         if translation_boolean and serializer.is_valid():
             print('serializer was valid')
             serializer.save()
+            print(previous_language_to_detect)
             return render(request, 'translator/translate_text.html',
                             {'original_text': text_to_translate,
                             'translated_text': translation.text,
                             'detected_language': language_detect,
                             'target_language':target_language,
                             'tess_languages':concat_tess_languages,
-                            'gt_languages':concat_gt_languages})
+                            'gt_languages':concat_gt_languages,
+                            'previous_target_lang':previous_target_language,
+                            'previous_detect_lang':previous_language_to_detect})
         else:
             print('serializer was not valid')
             return render(request, 'translator/translate_text.html',
@@ -72,7 +83,9 @@ def translate_text(request):
                  'target_language':target_language,
                  'error_message':'an error occurred, please check the translation settings',
                  'tess_languages':concat_tess_languages,
-                    'gt_languages':concat_gt_languages})
+                 'gt_languages':concat_gt_languages,
+                 'previous_target_lang':previous_target_language,
+                 'previous_detect_lang':previous_language_to_detect})
     return render(request,  'translator/translate_text.html',{
                             'tess_languages':concat_tess_languages,
                             'gt_languages':concat_gt_languages})
@@ -84,9 +97,13 @@ def translate_image(request):
         translation_boolean = True
         image_file = request.FILES['image']
         
-        language_detect_acr, language_detect = request.POST.get('language_dropdown').split(' || ')
+        previous_language_to_detect =request.POST.get('language_dropdown') 
 
-        target_language_acr, target_language = request.POST.get('target_language').split(' || ')
+        language_detect_acr, language_detect = previous_language_to_detect.split(' || ')
+
+        previous_target_language = request.POST.get('target_language')
+
+        target_language_acr, target_language = previous_target_language.split(' || ')
 
         # Save the image temporarily
         fs = FileSystemStorage()
@@ -102,7 +119,7 @@ def translate_image(request):
             extracted_text = pytesseract.image_to_string(img, lang=language_detect_acr).replace(' ','')
             
             # Translate the extracted text
-            translation = translator.translate(extracted_text, dest='en')
+            # translation = translator.translate(extracted_text, dest='en')
 
             translation = translator.translate(extracted_text, dest=target_language_acr)
         except:
@@ -129,7 +146,9 @@ def translate_image(request):
                            'target_language':target_language,
                            'translated_text': translation.text,
                            'tess_languages':concat_tess_languages,
-                           'gt_languages':concat_gt_languages})
+                           'gt_languages':concat_gt_languages,
+                            'previous_target_lang':previous_target_language,
+                            'previous_detect_lang':previous_language_to_detect})
         else:
             print('serializer was not valid')
             return render(request, 'translator/translate_image.html',
@@ -137,7 +156,9 @@ def translate_image(request):
                            'target_language':target_language,
                            'tess_languages':concat_tess_languages,
                            'gt_languages':concat_gt_languages,
-                           'error_message':'an error occurred, please check the translation settings'})
+                           'error_message':'an error occurred, please check the translation settings',
+                            'previous_target_lang':previous_target_language,
+                            'previous_detect_lang':previous_language_to_detect})
     return render(request, 'translator/translate_image.html',
                   {'tess_languages':concat_tess_languages,
                    'gt_languages':concat_gt_languages})

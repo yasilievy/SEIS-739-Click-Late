@@ -18,9 +18,11 @@
         <table id="translate-history-table" class="table table-striped table-bordered" style="width:100%">
             <thead>
                 <tr>
+                <th scope="col"></th>
                 <th scope="col">Date</th>
                 <th scope="col">Text to Translate</th>
                 <th scope="col">Detected Language</th>
+                <th scope="col">Target Language</th>
                 <th scope="col">Translation Results</th>
                 </tr>
                 </thead>
@@ -28,9 +30,11 @@
             {% for history in translated_history %}
             {% if history.text_boolean %}
             <tr>
+                <th><button name="button_delete" ng-click="button_delete()">Delete</button></th>
                 <th>{{history.date}}</th>
                 <td><textarea name="translate-history-text-to-translate">{{ history.text_to_translate }}</textarea></td>
                 <td>{{ history.detected_language }}</td>
+                <td>{{ history.target_language }}</td>
                 <td><textarea name="translate-history-translated_results">{{ history.translated_results }}</textarea></td>
             </tr>
             {% endif %}

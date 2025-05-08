@@ -18,6 +18,7 @@
                 <th scope="col"><label>Language to Detect (required)</label></th>
                 <th scope="col"><label>Select Image to Translate</label></th>
                 <th scope="col"><label>Target Language<br>(default=English)</label></th>
+                <th scope="col"></th>
                 <th scope="col"><label>Image View</label></th>
                 <th scope="col"><label>Detected Text</label></th>
                 <th scope="col"><label>Translation Results</label></th>
@@ -32,7 +33,11 @@
                     {% endif %}
                     <select name="language_dropdown">
                         {% for pt_language in tess_languages %}
+                        {% if previous_detect_lang == pt_language %}
+                        <option selected>{{pt_language}}</option>
+                        {% else %}
                         <option>{{pt_language}}</option>
+                        {% endif %}
                         {% endfor %}
                     </select> 
                 <th>
@@ -41,7 +46,7 @@
                 <th>
                     <select name="target_language">
                         {% for gt_language in gt_languages %}
-                        {% if gt_language == "en || english" %}
+                        {% if gt_language == "en || english" or previous_target_lang == gt_language%}
                         <option selected>{{gt_language}}</option>
                         {% else %}
                         {% endif %}
@@ -50,8 +55,10 @@
                     </select> 
                 </th>
                 <th>
-                    <img src="{{ image_to_translate }}"/>
                     <button type="submit">Translate Image</button>
+                </th>
+                <th>
+                    <img src="{{ image_to_translate }}"/>
                 </th>
                 <th>
                     <textarea name="text">{{ original_text }}</textarea>
