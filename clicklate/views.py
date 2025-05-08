@@ -10,11 +10,8 @@ from django.contrib.auth.decorators import login_required
 from googletrans import Translator, LANGUAGES
 from django.core.files.storage import FileSystemStorage
 from PIL import Image
+import pytesseract
 
-# import detectlanguage
-# from . import detectlanguage_config
-
-# detectlanguage.configuration.api_key = "6dd8715b0219b1a87976ddfced65fe59"
 translator = Translator()
 pytesseract.pytesseract.tesseract_cmd = 'Tesseract-OCR\\tesseract.exe'
 
