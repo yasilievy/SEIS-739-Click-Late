@@ -46,11 +46,6 @@ def emailupdate_view(request):
         form = EmailUpdateForm(request.POST)
     return render(request,'accounts/email_update.html',{'form':form})
 
-# def update_profile(request):
-#     if request.method =='POST':
-#         form = 
-
-
 # Password Reset Request view
 def password_reset_inquiry(request):
     verified_bool = False

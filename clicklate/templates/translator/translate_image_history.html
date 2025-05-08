@@ -19,16 +19,18 @@
             <thead>
                 <tr>
                 <th scope="col">Date</th>
-                <th scope="col">Text to Translate</th>
+                <th scope="col">Image to Translate</th>
+                <th scope="col">Detected Text</th>
                 <th scope="col">Detected Language</th>
                 <th scope="col">Translation Results</th>
                 </tr>
                 </thead>
                 <tbody>
             {% for history in translated_history %}
-            {% if history.text_boolean %}
+            {% if history.image_boolean %}
             <tr>
                 <th>{{history.date}}</th>
+                <td><img src="{{ history.image_to_translate }}"></td>
                 <td><textarea name="translate-history-text-to-translate">{{ history.text_to_translate }}</textarea></td>
                 <td>{{ history.detected_language }}</td>
                 <td><textarea name="translate-history-translated_results">{{ history.translated_results }}</textarea></td>
@@ -39,6 +41,6 @@
         </table>
     </div>
     {% endblock %}
-    </body>
+</body>
 </html>
 

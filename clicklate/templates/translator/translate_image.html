@@ -12,7 +12,17 @@
     </ul>
     <form method="POST" enctype="multipart/form-data">
         {% csrf_token %}
+        <label>For image translations, we need an intended language detection</label>
+        <br>
+        <label>Language to detect *:</label>
+        <br><br>
+        <input type="text" name="detect_language" placeholder="e.g., bra (brazillian)" value="{% if language_detected %}{{ language_detected }}{% endif %}"/>
+        <br><br>
         <input type="file" name="image" required /><br>
+        <label for="target_language"> Target Language (default is English): </label>
+        <br><br>
+        <input type="text" name="target_language" placeholder="e.g., br (brazillian)" value="{% if target_language %}{{ target_language }}{% endif %}" />
+        <br><br>
         <button type="submit">Translate Image</button>
     </form>
     {% if original_text %}

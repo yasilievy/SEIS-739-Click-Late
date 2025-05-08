@@ -12,11 +12,9 @@
     </ul>
     <form method="POST">
         {% csrf_token %}
-   
         <p name="language_detected">Language detected is: {% if language_detected %} {{ language_detected }} {% endif %}</p>
         <textarea name="text" id="text-input" placeholder="Enter text to translate" required>{% if original_text %}{{ original_text }}{% endif %}</textarea><br>
-   
-        <br>
+           <br>
         <label for="target_language"> Target Language (default is English): </label>
         <br><br>
         <input type="text" name="target_language" placeholder="e.g., br (brazillian)" value="{% if target_language %}{{ target_language }}{% endif %}" />
