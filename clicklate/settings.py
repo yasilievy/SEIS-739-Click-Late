@@ -132,3 +132,5 @@ LOGIN_REDIRECT_URL = '/'
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
+
+DATE_INPUT_FORMATS = ['%m-%d-%Y %H:%M:%S']

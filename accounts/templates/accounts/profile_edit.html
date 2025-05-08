@@ -1,7 +1,22 @@
-  <h2>Edit Profile</h2>
+{% extends 'nav.html' %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Edit Profile</title>
+</head>
+<body>
+    {% block content %}
+ <h2>Edit Profile</h2>
   <form method="post">
     {% csrf_token %}
-    {{ form.as_p }}
+    <p><label>Username:</label>{{ form.username }}</p>
+    <p><label>First Name:</label>{{ form.first_name }}</p>
+    <p><label>Last Name:</label>{{ form.last_name }}</p>
+    <p><label>Email:</label>{{ form.email }}</p>
     <button type="submit">Save changes</button>
   </form>
+  <br>
   <a href="{% url 'profile' %}"><button>Cancel</button></a>
+  {% endblock %}
+  </body>
+  </html>

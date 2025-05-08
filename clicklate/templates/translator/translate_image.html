@@ -12,16 +12,39 @@
     </ul>
     <form method="POST" enctype="multipart/form-data">
         {% csrf_token %}
+        {% if error_message %}
+        <label>{{ error_message}}</label>
+        {% else %}
+        <br>
+        {% endif %}
+        <label>For image translations, we need an intended language detection</label>
+        <br>
+        <label>Language to detect (required):</label>
+        <br><br>
+        <input type="text" name="detect_language" placeholder="e.g., bra (brazillian)" value="{% if language_detected %}{{ language_detected }}{% endif %}"/>
+        <br><br>
+        <label>Select Image to Translate</label>
+        <br><br>
         <input type="file" name="image" required /><br>
+        <label for="target_language"> Target Language (default is English): </label>
+        <br><br>
+        <input type="text" name="target_language" placeholder="e.g., br (brazillian)" value="{% if target_language %}{{ target_language }}{% endif %}" />
+        <br><br>
         <button type="submit">Translate Image</button>
     </form>
+    <br><br>
+    <label>Translation Results:</label>
+    <br><br>
     {% if original_text %}
-        <h2>Original Text in Image:</h2>
-        <p>{{ original_text }}</p>
-        <h2>Translated Text:</h2>
-        <p>{{ translated_text }}</p>
-        <h3>Image URL:</h3>
-        <img src="{{ image_url }}" alt="Uploaded Image" />
+    <textarea name="text">{{ translated_text }}</textarea>
+    <br><br>
+    <label>Detected Text:</label>
+    <br><br>
+    <textarea name="text">{{ original_text }}</textarea>
+    <br><br>
+    <label>Image view:</label>
+    <br><br>
+    <img src="{{ image_to_translate }}"/>
     {% endif %}
     {% endblock %}
 </body>
