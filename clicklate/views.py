@@ -10,7 +10,7 @@ from django.contrib.auth.decorators import login_required
 from googletrans import Translator, LANGUAGES
 from django.core.files.storage import FileSystemStorage
 from PIL import Image
-import pytesseract
+
 # import detectlanguage
 # from . import detectlanguage_config
 
