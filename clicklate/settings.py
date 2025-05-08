@@ -134,3 +134,5 @@ MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
 DATE_INPUT_FORMATS = ['%m-%d-%Y %H:%M:%S']
+
+PYTESS_LANGUAGE = dict([(line.split('\t')[0],line.split('\t')[1]) for line in open(BASE_DIR / 'pytesseract_language_dict.txt','r').read().split('\n')])

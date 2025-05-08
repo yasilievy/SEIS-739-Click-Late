@@ -48,6 +48,7 @@ def translate_text(request):
                         'text_boolean': True,
                         'text_to_translate': text_to_translate,
                         'detected_language': LANGUAGES[translation.src],
+                        'target_language': target_language,
                         'translated_results': translation.text
                     }
             else:
@@ -59,6 +60,7 @@ def translate_text(request):
                         'text_boolean': True,
                         'text_to_translate': text_to_translate,
                         'detected_language': LANGUAGES[language_detect],
+                        'target_language': target_language,
                         'translated_results': translation.text
                     }
             serializer = TranslatedHistorySerializer(data=data)
@@ -83,12 +85,16 @@ def translate_text(request):
 
 
 def translate_image(request):
+    concat_tess_languages = [f'{key} || {value}' for key,value in settings.PYTESS_LANGUAGE.items()]
+    concat_gt_languages = [f'{key} || {value}' for key,value in LANGUAGES.items()]
     """Handle translation of text in an uploaded image."""
     if request.method == 'POST' and request.FILES.get('image'):
         translation_boolean = True
         image_file = request.FILES['image']
         
-        language_detect = request.POST.get('detect_language')
+        language_detect_acr, language_detect = request.POST.get('language_dropdown').split(' || ')
+
+        target_language_acr, target_language = request.POST.get('target_language').split(' || ')
 
         # Save the image temporarily
         fs = FileSystemStorage()
@@ -101,16 +107,12 @@ def translate_image(request):
 
         try:
             # Use Tesseract to extract text from the image
-            extracted_text = pytesseract.image_to_string(img, lang=language_detect).replace(' ','')
+            extracted_text = pytesseract.image_to_string(img, lang=language_detect_acr).replace(' ','')
             
             # Translate the extracted text
             translation = translator.translate(extracted_text, dest='en')
 
-            target_language = request.POST.get('target_language')
-            if len(target_language) ==0 :
-                target_language = 'en'
-
-            translation = translator.translate(extracted_text, dest=target_language,src=language_detect[:-1])
+            translation = translator.translate(extracted_text, dest=target_language_acr)
         except:
             translation_boolean = False
 
@@ -119,7 +121,8 @@ def translate_image(request):
             'image_boolean': True,
             'image_to_translate': uploaded_image_path,
             'text_to_translate': extracted_text,
-            'detected_language': LANGUAGES[translation.src],
+            'detected_language': language_detect,
+            'target_language': target_language,
             'translated_results': translation.text
         }
         serializer = TranslatedHistorySerializer(data=data)
@@ -130,15 +133,22 @@ def translate_image(request):
                           {'image_to_translate': uploaded_image_path,
                            'original_text': extracted_text,
                            'language_detect': language_detect,
+                           'detected_language':language_detect,
                            'target_language':target_language,
-                           'translated_text': translation.text})
+                           'translated_text': translation.text,
+                           'tess_languages':concat_tess_languages,
+                           'gt_languages':concat_gt_languages})
         else:
             print('serializer was not valid')
             return render(request, 'translator/translate_image.html',
                           {'language_detected': language_detect,
                            'target_language':target_language,
+                           'tess_languages':concat_tess_languages,
+                           'gt_languages':concat_gt_languages,
                            'error_message':'an error occurred, please check the translation settings'})
-    return render(request, 'translator/translate_image.html')
+    return render(request, 'translator/translate_image.html',
+                  {'tess_languages':concat_tess_languages,
+                   'gt_languages':concat_gt_languages})
 
 def translate_history(request):
     history = TranslateHistory.objects.filter(user_id=request.user.id)
