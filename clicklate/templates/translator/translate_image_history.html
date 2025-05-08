@@ -42,8 +42,9 @@
                 <th><button name="button_delete" ng-click="button_delete()">Delete</button></th>
                 <th>{{history.date}}</th>
                 <td><img src="{{ history.image_to_translate }}"></td>
-                <td><textarea name="translate-history-text-to-translate">{{ history.text_to_translate }}</textarea></td>
                 <td>{{ history.detected_language }}</td>
+                <td><textarea name="translate-history-text-to-translate">{{ history.text_to_translate }}</textarea></td>
+                <td>{{ history.target_language }}</td>
                 <td><textarea name="translate-history-translated_results">{{ history.translated_results }}</textarea></td>
             </tr>
             {% endif %}

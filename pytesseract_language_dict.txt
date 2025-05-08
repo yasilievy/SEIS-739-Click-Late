@@ -1,3 +1,4 @@
+										
 afr	Afrikaans	x	x	x	x	x	x
 amh	Amharic	 	x	x	x	x	x
 ara	Arabic	x	x	x	x	x	x

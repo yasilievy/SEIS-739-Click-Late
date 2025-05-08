@@ -14,6 +14,8 @@ import pytesseract
 
 translator = Translator()
 pytesseract.pytesseract.tesseract_cmd = 'Tesseract-OCR\\tesseract.exe'
+concat_tess_languages = [f'{key} || {value}' for key,value in settings.PYTESS_LANGUAGE.items()]
+concat_gt_languages = [f'{key} || {value}' for key,value in LANGUAGES.items()]
 
 def home(request):
     return render(request, 'home.html')
@@ -24,42 +26,31 @@ def home_user(request):
     return redirect('home')
 
 def translate_text(request):
+
     """Handle translation of a word or phrase."""
     if request.method == 'POST':
         translation_boolean = True
 
         text_to_translate = request.POST.get('text')
 
-        target_language = request.POST.get('target_language')
+        # target_language = request.POST.get('target_language')
 
-        language_detect = request.POST.get('detect_language')
+        # language_detect = request.POST.get('detect_language')
 
-        if len(target_language) == 0:
-            target_language = 'en'
-        
+        language_detect_acr, language_detect = request.POST.get('language_dropdown').split(' || ')
+
+        target_language_acr, target_language = request.POST.get('target_language').split(' || ')
+
         try:
-            if len(language_detect) == 0:
-                translation = translator.translate(text_to_translate, dest=target_language)
-                data = {
-                        'user_id': request.user.id,
-                        'text_boolean': True,
-                        'text_to_translate': text_to_translate,
-                        'detected_language': LANGUAGES[translation.src],
-                        'target_language': target_language,
-                        'translated_results': translation.text
-                    }
-            else:
-                if len(language_detect) == 3:
-                    language_detect = language_detect[:-1]
-                translation = translator.translate(text_to_translate, dest=target_language, src=language_detect)
-                data = {
-                        'user_id': request.user.id,
-                        'text_boolean': True,
-                        'text_to_translate': text_to_translate,
-                        'detected_language': LANGUAGES[language_detect],
-                        'target_language': target_language,
-                        'translated_results': translation.text
-                    }
+            translation = translator.translate(text_to_translate, dest=target_language, src=language_detect_acr)
+            data = {
+                    'user_id': request.user.id,
+                    'text_boolean': True,
+                    'text_to_translate': text_to_translate,
+                    'detected_language': language_detect,
+                    'target_language': target_language,
+                    'translated_results': translation.text
+                }
             serializer = TranslatedHistorySerializer(data=data)
         except:
             translation_boolean = False
@@ -68,22 +59,26 @@ def translate_text(request):
             print('serializer was valid')
             serializer.save()
             return render(request, 'translator/translate_text.html',
-                          {'original_text': text_to_translate,
-                           'translated_text': translation.text,
-                           'language_detected': LANGUAGES[translation.src],
-                           'target_language':target_language})
+                            {'original_text': text_to_translate,
+                            'translated_text': translation.text,
+                            'detected_language': language_detect,
+                            'target_language':target_language,
+                            'tess_languages':concat_tess_languages,
+                            'gt_languages':concat_gt_languages})
         else:
             print('serializer was not valid')
             return render(request, 'translator/translate_text.html',
                 {'original_text':text_to_translate,
                  'target_language':target_language,
-                 'error_message':'an error occurred, please check the translation settings'})
-    return render(request, 'translator/translate_text.html')
+                 'error_message':'an error occurred, please check the translation settings',
+                 'tess_languages':concat_tess_languages,
+                    'gt_languages':concat_gt_languages})
+    return render(request,  'translator/translate_text.html',{
+                            'tess_languages':concat_tess_languages,
+                            'gt_languages':concat_gt_languages})
 
 
 def translate_image(request):
-    concat_tess_languages = [f'{key} || {value}' for key,value in settings.PYTESS_LANGUAGE.items()]
-    concat_gt_languages = [f'{key} || {value}' for key,value in LANGUAGES.items()]
     """Handle translation of text in an uploaded image."""
     if request.method == 'POST' and request.FILES.get('image'):
         translation_boolean = True
