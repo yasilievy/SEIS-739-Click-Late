@@ -149,16 +149,13 @@ def translate_image_history(request):
     history = TranslateHistory.objects.filter(user_id=request.user.id)
     return render(request, 'translator/translate_image_history.html',{'translated_history': history})
 
-@api_view(['POST'])
-def translate_handle(request):
-
-    if request.method == 'POST':
-        print('handled request')
-        serializer = TranslatedHistorySerializer(data=request.data)
-        if serializer.is_valid():
-            
-            existing_size = len(TranslateHistory.objects.all())
-            serializer.validated_data['id'] = existing_size + 1
-            # serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-
+@api_view(['POST','DELETE'])
+def translate_handle(request, id, format=None):
+    try:
+        translate_event = TranslateHistory.objects.get(pk=id)
+    except:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+    
+    if request.method == 'DELETE':
+        translate_event.delete()
+        return Response(status.HTTP_200_OK)

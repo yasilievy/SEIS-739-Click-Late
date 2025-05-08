@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Nav</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+</head>
+<body>
+    <h1>Hi {% if user %}{{user.first_name}} <a href="{% url 'logout' %}">Logout</a>{% endif %}</h1>
+    <h2>Welcome to ClickLate</h2>
+    <ul class="nav nav-pills nav-justified">
+        <li><a href="{% url 'home-user' %}">Home</a></li>
+        <li><a href="{% url 'translate_text' %}">Translation</a></li>
+        <li><a href="{% url 'translate_history' %}">History</a></li>
+        <li><a href="{% url 'profile' %}">Profile</a></li>
+    </ul>
+    {% block content %}
+
+    {% endblock %}
+    <h3>About</h3>
+</body>
+</html>

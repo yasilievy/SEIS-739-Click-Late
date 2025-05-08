@@ -23,7 +23,7 @@ def profile_edit(request):
     return render(request,'accounts/profile_edit.html', {'form': form})
 
 
-
+@login_required
 def emailupdate_view(request):
     if request.method == 'POST':
         form = EmailUpdateForm(request.POST)
@@ -48,8 +48,6 @@ def emailupdate_view(request):
 
 # Password Reset Request view
 def password_reset_inquiry(request):
-    verified_bool = False
-    verifying_bool = True
     if request.method == 'POST':
         form = ForgotPasswordForm(request.POST)
         if form.is_valid():
@@ -59,9 +57,15 @@ def password_reset_inquiry(request):
             if len(associated_users) ==1 and associated_users[0].username == username:
                 if associated_users[0] is not None:
                     return redirect('password_reset_verified',associated_users[0].username)
+            else:
+                form = ForgotPasswordForm()
+                return render(request, 'accounts/password_reset_inquiry.html',
+                              {'form': form,
+                               'error':'Either the email or username was entered incorrectly. Please try again'})
     else:
         form = ForgotPasswordForm()
-    return render(request, 'accounts/password_reset_inquiry.html', {'form': form,'verifyingbool':verifying_bool,'verifiedbool':verified_bool})
+    return render(request, 'accounts/password_reset_inquiry.html',{'form': form})
+
 @login_required
 def profile_view(request):
     if request.user.is_authenticated:

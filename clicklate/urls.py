@@ -19,6 +19,7 @@ from django.urls import path, include
 from clicklate import views
 from django.conf import settings
 from django.conf.urls.static import static
+# from rest_framework.urlpatterns import format_suffix_patterns
 
 
 urlpatterns = [
@@ -28,8 +29,10 @@ urlpatterns = [
     path('',include ('accounts.urls')), # taking urls py from a different app folder
     path('translate-text/', views.translate_text, name='translate_text'),
     path('translatehistory/', views.translate_history, name='translate_history'),
-    path('translatehandle/', views.translate_handle),
+    path('translatehandle/<int:id>', views.translate_handle),
     path('translateimagehistory/', views.translate_image_history, name='translate_image_history'),
     path('translateimage/', views.translate_image, name='translate_image'),
 
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
+# urlpatterns= format_suffix_patterns
