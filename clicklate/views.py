@@ -29,21 +29,43 @@ def home_user(request):
 def translate_text(request):
     """Handle translation of a word or phrase."""
     if request.method == 'POST':
+        translation_boolean = True
+
         text_to_translate = request.POST.get('text')
+
         target_language = request.POST.get('target_language')
-        if len(target_language) == 0 :
+
+        language_detect = request.POST.get('detect_language')
+
+        if len(target_language) == 0:
             target_language = 'en'
-        translation = translator.translate(text_to_translate, dest=target_language)
-        print(request.user.id)
-        data = {
-            'user_id': request.user.id,
-            'text_boolean': True,
-            'text_to_translate': text_to_translate,
-            'detected_language': LANGUAGES[translation.src],
-            'translated_results': translation.text
-        }
-        serializer = TranslatedHistorySerializer(data=data)
-        if serializer.is_valid():
+        
+        try:
+            if len(language_detect) == 0:
+                translation = translator.translate(text_to_translate, dest=target_language)
+                data = {
+                        'user_id': request.user.id,
+                        'text_boolean': True,
+                        'text_to_translate': text_to_translate,
+                        'detected_language': LANGUAGES[translation.src],
+                        'translated_results': translation.text
+                    }
+            else:
+                if len(language_detect) == 3:
+                    language_detect = language_detect[:-1]
+                translation = translator.translate(text_to_translate, dest=target_language, src=language_detect)
+                data = {
+                        'user_id': request.user.id,
+                        'text_boolean': True,
+                        'text_to_translate': text_to_translate,
+                        'detected_language': LANGUAGES[language_detect],
+                        'translated_results': translation.text
+                    }
+            serializer = TranslatedHistorySerializer(data=data)
+        except:
+            translation_boolean = False
+
+        if translation_boolean and serializer.is_valid():
             print('serializer was valid')
             serializer.save()
             return render(request, 'translator/translate_text.html',
@@ -53,12 +75,17 @@ def translate_text(request):
                            'target_language':target_language})
         else:
             print('serializer was not valid')
+            return render(request, 'translator/translate_text.html',
+                {'original_text':text_to_translate,
+                 'target_language':target_language,
+                 'error_message':'an error occurred, please check the translation settings'})
     return render(request, 'translator/translate_text.html')
 
 
 def translate_image(request):
     """Handle translation of text in an uploaded image."""
     if request.method == 'POST' and request.FILES.get('image'):
+        translation_boolean = True
         image_file = request.FILES['image']
         
         language_detect = request.POST.get('detect_language')
@@ -72,17 +99,21 @@ def translate_image(request):
         image_path = fs.location + '/' + filename
         img = Image.open(image_path)
 
-        # Use Tesseract to extract text from the image
-        extracted_text = pytesseract.image_to_string(image_file, lang=language_detect)
-        
-        # Translate the extracted text
-        translation = translator.translate(extracted_text, dest='en')
+        try:
+            # Use Tesseract to extract text from the image
+            extracted_text = pytesseract.image_to_string(img, lang=language_detect).replace(' ','')
+            
+            # Translate the extracted text
+            translation = translator.translate(extracted_text, dest='en')
 
-        target_language = request.POST.get('target_language')
-        if len(target_language) ==0 :
-            target_language = 'en'
-        translation = translator.translate(extracted_text, dest=target_language)
-        print(request.user.id)
+            target_language = request.POST.get('target_language')
+            if len(target_language) ==0 :
+                target_language = 'en'
+
+            translation = translator.translate(extracted_text, dest=target_language,src=language_detect[:-1])
+        except:
+            translation_boolean = False
+
         data = {
             'user_id': request.user.id,
             'image_boolean': True,
@@ -92,19 +123,21 @@ def translate_image(request):
             'translated_results': translation.text
         }
         serializer = TranslatedHistorySerializer(data=data)
-        if serializer.is_valid() and len(language_detect) >0:
+        if translation_boolean and len(language_detect) > 0 and serializer.is_valid():
             print('serializer was valid')
             serializer.save()
             return render(request, 'translator/translate_image.html',
-                          {'original_text': extracted_text,
+                          {'image_to_translate': uploaded_image_path,
+                           'original_text': extracted_text,
                            'language_detect': language_detect,
                            'target_language':target_language,
                            'translated_text': translation.text})
         else:
+            print('serializer was not valid')
             return render(request, 'translator/translate_image.html',
-                          {'image_to_translate': translation.text,
-                           'language_detected': LANGUAGES[translation.src],
-                           'target_language':target_language})
+                          {'language_detected': language_detect,
+                           'target_language':target_language,
+                           'error_message':'an error occurred, please check the translation settings'})
     return render(request, 'translator/translate_image.html')
 
 def translate_history(request):
