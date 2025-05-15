@@ -26,12 +26,14 @@ def home(request):
 
 # home screen for logged on user
 def home_user(request):
-    if request.user.is_authenticated:
-        return render(request, 'home-user.html',{'user':request.user})
-    return redirect('home')
+    if not request.user.is_authenticated:
+        return redirect('home')
+    return render(request, 'home-user.html',{'user':request.user})
 
 # translate text view
 def translate_text(request):
+    if not request.user.is_authenticated:
+        return redirect('home')
     """Handle translation of a word or phrase."""
     if request.method == 'POST':
          # retrieves the text to translate
@@ -109,6 +111,8 @@ def translate_text(request):
 
 
 def translate_image(request):
+    if not request.user.is_authenticated:
+        return redirect('home')
     """Handle translation of text in an uploaded image."""
     if request.method == 'POST' and request.FILES.get('image'):
         # retrieves uploaded image that was part of POST
@@ -142,7 +146,11 @@ def translate_image(request):
         # if unsuccessful, translation_boolean is false, else, translation boolean remains true
         try:
             # use tesseract to extract text from the image
-            extracted_text = pytesseract.image_to_string(img, lang=language_detect_acr).replace(' ','')
+            if language_detect_acr == 'eng':
+                # one edge case scenario where it is not good to remove spaces
+                extracted_text = pytesseract.image_to_string(img, lang=language_detect_acr)
+            else:
+                extracted_text = pytesseract.image_to_string(img, lang=language_detect_acr).replace(' ','')
             
             # translate the extracted text
             translation = translator.translate(extracted_text, dest=target_language_acr)
@@ -190,11 +198,15 @@ def translate_image(request):
 
 # translate text history view
 def translate_text_history(request):
+    if not request.user.is_authenticated:
+        return redirect('home')
     history = TranslateHistory.objects.filter(user_id=request.user.id)
     return render(request, 'translator/translate_text_history.html',{'translated_history': history})
 
 # translate image history view
 def translate_image_history(request):
+    if not request.user.is_authenticated:
+        return redirect('home')
     history = TranslateHistory.objects.filter(user_id=request.user.id)
     return render(request, 'translator/translate_image_history.html',{'translated_history': history})
 

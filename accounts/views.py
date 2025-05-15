@@ -3,7 +3,6 @@ from django.contrib import messages
 from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.forms import AuthenticationForm, SetPasswordForm
 from django.contrib.auth.models import User
-from django.contrib.auth.decorators import login_required
 from .forms import CreateUserForm, ForgotPasswordForm, ProfileUpdateForm
 
 # Password Reset Request view
@@ -38,8 +37,9 @@ def password_reset_verified(request,username):
         form = SetPasswordForm(request.user)
     return render(request, 'accounts/password_reset_verified.html', {'form': form})
 
-@login_required
 def profile_edit(request):
+    if not request.user.is_authenticated:
+        return redirect('home')
     if request.method == 'POST':
         form = ProfileUpdateForm(request.POST, instance=request.user)
         if form.is_valid():
@@ -49,7 +49,6 @@ def profile_edit(request):
         form = ProfileUpdateForm(instance=request.user)
     return render(request,'accounts/profile_edit.html', {'form': form})
 
-@login_required
 def profile_view(request):
     if request.user.is_authenticated:
         return render(request,'accounts/profile.html',{'user':request.user})
@@ -93,6 +92,8 @@ def login_view(request):
 
 # Logout View
 def logout_view(request):
+    if not request.user.is_authenticated:
+        return redirect('home')
     logout(request)
     messages.info(request, 'You have successfully logged out.')
     return redirect('login')

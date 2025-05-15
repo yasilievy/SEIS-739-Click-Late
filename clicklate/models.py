@@ -1,5 +1,4 @@
 from django.db import models
-from django.utils import timezone
 from datetime import datetime
 # models are the database table defined as classes. if added a class here, include in the admin.py and serializers.py
 
