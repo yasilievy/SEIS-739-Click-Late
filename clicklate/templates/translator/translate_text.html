@@ -30,7 +30,7 @@
                     {% endif %}
                     <select name="language_dropdown">
                         {% for gt_language in gt_languages %}
-                        {% if gt_language == "en || english" or previous_detect_lang == gt_language %}
+                        {% if previous_detect_lang == gt_language %}
                         <option selected>{{gt_language}}</option>
                         {% else %}
                         <option>{{gt_language}}</option>
@@ -44,7 +44,7 @@
                 <th>
                     <select name="target_language">
                         {% for gt_language in gt_languages %}
-                        {% if gt_language == "en || english" or previous_target_lang == gt_language %}
+                        {% if previous_target_lang == gt_language or gt_language == "en || english" %}
                         <option selected>{{gt_language}}</option>
                         {% else %}
                         <option>{{gt_language}}</option>
