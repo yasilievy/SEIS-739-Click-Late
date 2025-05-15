@@ -6,22 +6,32 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
     <!-- <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular.min.js"></script> -->
+    <style>
+        table {
+            border-collapse:collapse;
+            width:auto;
+        }
+        th, td {
+            width:auto;
+        }
+    </style>
 </head>
 <body>
     {% block content %}
     <ul class="nav nav-pills nav-justified">
-        <li><a href="{% url 'translate_history' %}">Text</a></li>
+        <li><a href="{% url 'translate_text_history' %}">Text</a></li>
         <li><a href="{% url 'translate_image_history' %}">Image</a></li>
     </ul>
     <div class="container mt-5"></div>
         <table id="translate-history-table" class="table table-striped table-bordered" style="width:100%">
             <thead>
                 <tr>
-                <th scope="col">Function</th>
+                <th scope="col"></th>
                 <th scope="col">Date</th>
                 <th scope="col">Image to Translate</th>
                 <th scope="col">Detected Text</th>
                 <th scope="col">Detected Language</th>
+                <th scope="col">Target Language</th>
                 <th scope="col">Translation Results</th>
                 </tr>
                 </thead>
@@ -32,8 +42,9 @@
                 <th><button name="button_delete" ng-click="button_delete()">Delete</button></th>
                 <th>{{history.date}}</th>
                 <td><img src="{{ history.image_to_translate }}"></td>
-                <td><textarea name="translate-history-text-to-translate">{{ history.text_to_translate }}</textarea></td>
                 <td>{{ history.detected_language }}</td>
+                <td><textarea name="translate-history-text-to-translate">{{ history.text_to_translate }}</textarea></td>
+                <td>{{ history.target_language }}</td>
                 <td><textarea name="translate-history-translated_results">{{ history.translated_results }}</textarea></td>
             </tr>
             {% endif %}

@@ -11,6 +11,7 @@ class TranslateHistory(models.Model):
     image_to_translate = models.CharField(null=True,max_length=400)
     text_to_translate = models.CharField(max_length=400)
     detected_language = models.CharField(max_length=30)
+    target_language = models.CharField(max_length=30)
     translated_results = models.CharField(max_length=400)
     
 

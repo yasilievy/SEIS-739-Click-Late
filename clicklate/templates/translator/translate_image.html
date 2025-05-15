@@ -3,6 +3,8 @@
 <html>
 <head>
     <title>Text Translation</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
 </head>
 <body>
     {% block content %}
@@ -10,42 +12,64 @@
         <li><a href="{% url 'translate_text' %}">Text</a></li>
         <li><a href="{% url 'translate_image' %}">Image</a></li>
     </ul>
-    <form method="POST" enctype="multipart/form-data">
-        {% csrf_token %}
-        {% if error_message %}
-        <label>{{ error_message}}</label>
-        {% else %}
-        <br>
-        {% endif %}
-        <label>For image translations, we need an intended language detection</label>
-        <br>
-        <label>Language to detect (required):</label>
-        <br><br>
-        <input type="text" name="detect_language" placeholder="e.g., bra (brazillian)" value="{% if language_detected %}{{ language_detected }}{% endif %}"/>
-        <br><br>
-        <label>Select Image to Translate</label>
-        <br><br>
-        <input type="file" name="image" required /><br>
-        <label for="target_language"> Target Language (default is English): </label>
-        <br><br>
-        <input type="text" name="target_language" placeholder="e.g., br (brazillian)" value="{% if target_language %}{{ target_language }}{% endif %}" />
-        <br><br>
-        <button type="submit">Translate Image</button>
-    </form>
-    <br><br>
-    <label>Translation Results:</label>
-    <br><br>
-    {% if original_text %}
-    <textarea name="text">{{ translated_text }}</textarea>
-    <br><br>
-    <label>Detected Text:</label>
-    <br><br>
-    <textarea name="text">{{ original_text }}</textarea>
-    <br><br>
-    <label>Image view:</label>
-    <br><br>
-    <img src="{{ image_to_translate }}"/>
-    {% endif %}
+    <div>
+        <table id="translate-history-table" class="table table-striped table-bordered" style="width:100%">
+            <thead>
+                <th scope="col"><label>Language to Detect (required)</label></th>
+                <th scope="col"><label>Select Image to Translate</label></th>
+                <th scope="col"><label>Target Language<br>(default=English)</label></th>
+                <th scope="col"></th>
+                <th scope="col"><label>Image View</label></th>
+                <th scope="col"><label>Detected Text</label></th>
+                <th scope="col"><label>Translation Results</label></th>
+            </thead>
+            <form method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+            <tbody>
+                <tr>
+                <th>
+                    {% if error_message %}
+                    <p><label>{{ error_message}}</label></p>
+                    {% endif %}
+                    <select name="language_dropdown">
+                        {% for pt_language in tess_languages %}
+                        {% if previous_detect_lang == pt_language %}
+                        <option selected>{{pt_language}}</option>
+                        {% else %}
+                        <option>{{pt_language}}</option>
+                        {% endif %}
+                        {% endfor %}
+                    </select> 
+                <th>
+                    <input type="file" name="image" required />
+                </th>
+                <th>
+                    <select name="target_language">
+                        {% for gt_language in gt_languages %}
+                        {% if gt_language == "en || english" or previous_target_lang == gt_language%}
+                        <option selected>{{gt_language}}</option>
+                        {% else %}
+                        {% endif %}
+                        <option>{{gt_language}}</option>
+                        {% endfor %}
+                    </select> 
+                </th>
+                <th>
+                    <button type="submit">Translate Image</button>
+                </th>
+                <th>
+                    <img src="{{ image_to_translate }}"/>
+                </th>
+                <th>
+                    <textarea name="text">{{ original_text }}</textarea>
+                </th>
+                <th>
+                    <textarea name="text">{{ translated_text }}</textarea>
+                </th>
+                </tr>
+            </tbody>
+            </form>
+    </div>
     {% endblock %}
 </body>
 </html>

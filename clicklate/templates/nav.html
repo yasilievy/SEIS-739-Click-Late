@@ -12,14 +12,23 @@
     <h1>Hi {% if user %}{{user.first_name}} <a href="{% url 'logout' %}">Logout</a>{% endif %}</h1>
     <h2>Welcome to ClickLate</h2>
     <ul class="nav nav-pills nav-justified">
-        <li><a href="{% url 'home-user' %}">Home</a></li>
-        <li><a href="{% url 'translate_text' %}">Translation</a></li>
-        <li><a href="{% url 'translate_history' %}">History</a></li>
-        <li><a href="{% url 'profile' %}">Profile</a></li>
+        <li class="nav-item"><a href="{% url 'home-user' %}">Home</a></li>
+        <li class="nav-item"><a href="{% url 'translate_text' %}">Translation</a></li>
+        <li class="nav-item"><a href="{% url 'translate_text_history' %}">History</a></li>
+        <li class="nav-item"><a href="{% url 'profile' %}">Profile</a></li>
     </ul>
     {% block content %}
-
     {% endblock %}
-    <h3>About</h3>
+    <!-- <script>
+        var linkRefs = document.getElementsByClassName("nav-item");
+        linkRefs[2].className += ' active';
+        for (var i = 0; i < linkRefs.length; i++) {
+            linkRefs[i].addEventListener("click", function() {
+                var current = document.getElementsByClassName("active");
+                current[0].className = current[0].className.replace(" active", "");
+                this.className += " active";
+        });
+    }
+    </script> -->
 </body>
 </html>

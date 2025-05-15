@@ -13,5 +13,6 @@ class TranslatedHistorySerializer(serializers.ModelSerializer):
                   'image_to_translate',
                   'text_to_translate',
                   'detected_language',
+                  'target_language',
                   'translated_results'
                   ]

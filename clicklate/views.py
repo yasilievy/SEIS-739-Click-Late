@@ -2,93 +2,129 @@ from .models import TranslateHistory
 from .serializers import TranslatedHistorySerializer
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
-from rest_framework import status, request
+from rest_framework import status
 from django.shortcuts import render, redirect
-from django.contrib.auth.models import User
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from googletrans import Translator, LANGUAGES
 from django.core.files.storage import FileSystemStorage
 from PIL import Image
+import pytesseract
 
-# import detectlanguage
-# from . import detectlanguage_config
-
-# detectlanguage.configuration.api_key = "6dd8715b0219b1a87976ddfced65fe59"
+# initializing translator
 translator = Translator()
+# initializing tesseract
 pytesseract.pytesseract.tesseract_cmd = 'Tesseract-OCR\\tesseract.exe'
+# initializing language acronym and language dictionary for dropdown options
+concat_tess_languages = [f'{key} || {value}' for key,value in settings.PYTESS_LANGUAGE.items()]
+concat_gt_languages = [f'{key} || {value}' for key,value in LANGUAGES.items()]
+concat_gt_languages.insert(0,' || ')
 
+# home screen (click login to go to login view)
 def home(request):
     return render(request, 'home.html')
 
+# home screen for logged on user
 def home_user(request):
     if request.user.is_authenticated:
         return render(request, 'home-user.html',{'user':request.user})
     return redirect('home')
 
+# translate text view
 def translate_text(request):
     """Handle translation of a word or phrase."""
     if request.method == 'POST':
-        translation_boolean = True
-
+         # retrieves the text to translate
         text_to_translate = request.POST.get('text')
 
-        target_language = request.POST.get('target_language')
+        # cache to retain previously selected language_detect
+        previous_language_to_detect = request.POST.get('language_dropdown')
 
-        language_detect = request.POST.get('detect_language')
+        # parsing (language/acronym) the selected language_detect from dropdown option. becomes a bit more technical when there is an option for none
+        # checks whether the langauge_detect returns a one specific list size
+        language_init_detect = previous_language_to_detect.split(' || ')
+        if len(language_init_detect)==1:
+            language_detect_acr = ''
+            language_detect = ''
+        else:
+            language_detect_acr, language_detect = language_init_detect
 
-        if len(target_language) == 0:
-            target_language = 'en'
+        # cache to retain previously selected target_language
+        previous_target_language = request.POST.get('target_language')
         
+        # parsing (language/acronym) the selected target_language from dropdown option
+        target_language_acr, target_language = previous_target_language.split(' || ')
+
+       # translation success boolean
+        translation_boolean = True
+
+        # tries to translate based on the settings. error can occur if an obvious incorrect language to detect is paired with a text to translate
+        # if unsuccessful, translation_boolean is false, else, translation boolean remains true
         try:
-            if len(language_detect) == 0:
-                translation = translator.translate(text_to_translate, dest=target_language)
-                data = {
-                        'user_id': request.user.id,
-                        'text_boolean': True,
-                        'text_to_translate': text_to_translate,
-                        'detected_language': LANGUAGES[translation.src],
-                        'translated_results': translation.text
-                    }
+            if len(language_detect_acr) == 0:
+                translation = translator.translate(text_to_translate, dest=target_language_acr)
+                # if no language to detect was selected, translator will automatically detect it. as a result,
+                # pulling language to detect from the translator object for serializer
+                language_detect = LANGUAGES[translation.src]   
             else:
-                if len(language_detect) == 3:
-                    language_detect = language_detect[:-1]
-                translation = translator.translate(text_to_translate, dest=target_language, src=language_detect)
-                data = {
-                        'user_id': request.user.id,
-                        'text_boolean': True,
-                        'text_to_translate': text_to_translate,
-                        'detected_language': LANGUAGES[language_detect],
-                        'translated_results': translation.text
-                    }
+                translation = translator.translate(text_to_translate, dest=target_language_acr, src=language_detect_acr)
+            data = {
+                    'user_id': request.user.id,
+                    'text_boolean': True,
+                    'text_to_translate': text_to_translate,
+                    'detected_language': language_detect,
+                    'target_language': target_language,
+                    'translated_results': translation.text
+                }
             serializer = TranslatedHistorySerializer(data=data)
-        except:
+        except Exception as e:
+            print(e)
             translation_boolean = False
 
         if translation_boolean and serializer.is_valid():
             print('serializer was valid')
             serializer.save()
             return render(request, 'translator/translate_text.html',
-                          {'original_text': text_to_translate,
-                           'translated_text': translation.text,
-                           'language_detected': LANGUAGES[translation.src],
-                           'target_language':target_language})
+                            {'original_text': text_to_translate,
+                            'translated_text': translation.text,
+                            'detected_language': language_detect,
+                            'target_language':target_language,
+                            'tess_languages':concat_tess_languages,
+                            'gt_languages':concat_gt_languages,
+                            'previous_target_lang':previous_target_language,
+                            'previous_detect_lang':previous_language_to_detect})
         else:
             print('serializer was not valid')
             return render(request, 'translator/translate_text.html',
                 {'original_text':text_to_translate,
                  'target_language':target_language,
-                 'error_message':'an error occurred, please check the translation settings'})
-    return render(request, 'translator/translate_text.html')
+                 'error_message':'an error occurred, please check the translation settings',
+                 'tess_languages':concat_tess_languages,
+                 'gt_languages':concat_gt_languages,
+                 'previous_target_lang':previous_target_language,
+                 'previous_detect_lang':previous_language_to_detect})
+    return render(request,  'translator/translate_text.html',{
+                            'tess_languages':concat_tess_languages,
+                            'gt_languages':concat_gt_languages})
 
 
 def translate_image(request):
     """Handle translation of text in an uploaded image."""
     if request.method == 'POST' and request.FILES.get('image'):
-        translation_boolean = True
+        # retrieves uploaded image that was part of POST
         image_file = request.FILES['image']
         
-        language_detect = request.POST.get('detect_language')
+        # cache to retain previously selected language_detect
+        previous_language_to_detect =request.POST.get('language_dropdown') 
+
+        # parsing (language/acronym) the selected language_detect from dropdown option
+        language_detect_acr, language_detect = previous_language_to_detect.split(' || ')
+
+        # cache to retain previously selected target_language
+        previous_target_language = request.POST.get('target_language')
+        
+        # parsing (language/acronym) the selected target_language from dropdown option
+        target_language_acr, target_language = previous_target_language.split(' || ')
 
         # Save the image temporarily
         fs = FileSystemStorage()
@@ -99,18 +135,17 @@ def translate_image(request):
         image_path = fs.location + '/' + filename
         img = Image.open(image_path)
 
+        # translation success boolean
+        translation_boolean = True
+
+        # tries to translate based on the settings. error can occur if an obvious incorrect language to detect is paired with a text to translate
+        # if unsuccessful, translation_boolean is false, else, translation boolean remains true
         try:
-            # Use Tesseract to extract text from the image
-            extracted_text = pytesseract.image_to_string(img, lang=language_detect).replace(' ','')
+            # use tesseract to extract text from the image
+            extracted_text = pytesseract.image_to_string(img, lang=language_detect_acr).replace(' ','')
             
-            # Translate the extracted text
-            translation = translator.translate(extracted_text, dest='en')
-
-            target_language = request.POST.get('target_language')
-            if len(target_language) ==0 :
-                target_language = 'en'
-
-            translation = translator.translate(extracted_text, dest=target_language,src=language_detect[:-1])
+            # translate the extracted text
+            translation = translator.translate(extracted_text, dest=target_language_acr)
         except:
             translation_boolean = False
 
@@ -119,9 +154,11 @@ def translate_image(request):
             'image_boolean': True,
             'image_to_translate': uploaded_image_path,
             'text_to_translate': extracted_text,
-            'detected_language': LANGUAGES[translation.src],
+            'detected_language': language_detect,
+            'target_language': target_language,
             'translated_results': translation.text
         }
+
         serializer = TranslatedHistorySerializer(data=data)
         if translation_boolean and len(language_detect) > 0 and serializer.is_valid():
             print('serializer was valid')
@@ -130,25 +167,38 @@ def translate_image(request):
                           {'image_to_translate': uploaded_image_path,
                            'original_text': extracted_text,
                            'language_detect': language_detect,
+                           'detected_language':language_detect,
                            'target_language':target_language,
-                           'translated_text': translation.text})
+                           'translated_text': translation.text,
+                           'tess_languages':concat_tess_languages,
+                           'gt_languages':concat_gt_languages,
+                            'previous_target_lang':previous_target_language,
+                            'previous_detect_lang':previous_language_to_detect})
         else:
             print('serializer was not valid')
             return render(request, 'translator/translate_image.html',
                           {'language_detected': language_detect,
                            'target_language':target_language,
-                           'error_message':'an error occurred, please check the translation settings'})
-    return render(request, 'translator/translate_image.html')
+                           'tess_languages':concat_tess_languages,
+                           'gt_languages':concat_gt_languages,
+                           'error_message':'an error occurred, please check the translation settings',
+                            'previous_target_lang':previous_target_language,
+                            'previous_detect_lang':previous_language_to_detect})
+    return render(request, 'translator/translate_image.html',
+                  {'tess_languages':concat_tess_languages,
+                   'gt_languages':concat_gt_languages})
 
-def translate_history(request):
+# translate text history view
+def translate_text_history(request):
     history = TranslateHistory.objects.filter(user_id=request.user.id)
-    return render(request, 'translator/translate_history.html',{'translated_history': history})
-    # return render(request, 'translator/translate_history.html',{'translated_history': serializer.data})
+    return render(request, 'translator/translate_text_history.html',{'translated_history': history})
 
+# translate image history view
 def translate_image_history(request):
     history = TranslateHistory.objects.filter(user_id=request.user.id)
     return render(request, 'translator/translate_image_history.html',{'translated_history': history})
 
+# created backend API, but has not direct use at the moment
 @api_view(['POST','DELETE'])
 def translate_handle(request, id, format=None):
     try:
