@@ -5,7 +5,7 @@
   <br>
 </h1>
 
-<h4 align="center">A personalized translation web application suited for a traveler, student, translator and more.
+<h4 align="center">A personalized translation web application suited for a traveler, translator, linguist, student and more.
 
 
 
@@ -73,9 +73,9 @@ py -m pip install googletrans
 ```
 
 You will need to download [Tesseract-OCR](https://github.com/tesseract-ocr/tesseract/releases/download/5.5.0/tesseract-ocr-w64-setup-5.5.0.20241111.exe) and install the application in the same directory of git cloned directory <br>
-![alt text](image.png) <br>
+<img src='src/readme_examples/tesseract_ocr_ex.png'><br>
 Next, download the [tessdata](https://github.com/tesseract-ocr/tessdata) and replace the existing tessdata folder in the Tesseract-OCR folder <br>
-![alt text](image-1.png) <br>
+<img src='src/readme_examples/tessdata_ex.png'><br>
 
 
 
