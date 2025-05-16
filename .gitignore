@@ -56,3 +56,5 @@ env
 db.sqlite3
 
 Tesseract-OCR
+account/migrations
+clicklate/migrations
