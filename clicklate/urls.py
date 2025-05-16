@@ -21,10 +21,10 @@ from django.conf import settings
 from django.conf.urls.static import static
 
 urlpatterns = [
+    path('',include ('accounts.urls')),
     path('', views.home, name='home'),
     path('home/', views.home_user, name='home-user'),
     path('admin/', admin.site.urls),
-    path('',include ('accounts.urls')), # taking urls py from a different app folder
     path('translate-text/', views.translate_text, name='translate_text'),
     path('translatetexthistory/', views.translate_text_history, name='translate_text_history'),
     path('translateimagehistory/', views.translate_image_history, name='translate_image_history'),

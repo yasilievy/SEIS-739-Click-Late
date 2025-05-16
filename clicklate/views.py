@@ -109,7 +109,7 @@ def translate_text(request):
                             'tess_languages':concat_tess_languages,
                             'gt_languages':concat_gt_languages})
 
-
+# translate image view
 def translate_image(request):
     if not request.user.is_authenticated:
         return redirect('home')

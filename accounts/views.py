@@ -37,6 +37,7 @@ def password_reset_verified(request,username):
         form = SetPasswordForm(request.user)
     return render(request, 'accounts/password_reset_verified.html', {'form': form})
 
+# Profile Edit View
 def profile_edit(request):
     if not request.user.is_authenticated:
         return redirect('home')
@@ -44,7 +45,7 @@ def profile_edit(request):
         form = ProfileUpdateForm(request.POST, instance=request.user)
         if form.is_valid():
             form.save()
-            return redirect('profile')  # Redirect to a profile page (you'll need to create this view)
+            return redirect('profile')
     else:
         form = ProfileUpdateForm(instance=request.user)
     return render(request,'accounts/profile_edit.html', {'form': form})

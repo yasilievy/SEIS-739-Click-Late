@@ -131,4 +131,5 @@ EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
+# Creates a dictionary of the acronyms and languages
 PYTESS_LANGUAGE = dict([(line.split('\t')[0],line.split('\t')[1]) for line in open(BASE_DIR / 'src/pytesseract_language_dict.txt','r').read().split('\n')])
