@@ -1,8 +1,6 @@
 from rest_framework import serializers
 from .models import TranslateHistory
 
-# need to add database table here too
-
 class TranslatedHistorySerializer(serializers.ModelSerializer):
     class Meta:
         model = TranslateHistory
